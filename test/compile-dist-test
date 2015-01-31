@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+if test ! -f Makefile.in ; then
+  ./autogen
+fi
+if test ! -f Makefile ; then
+  ./configure
+fi
+make dist-gzip
+cur=$(pwd)
+mkdir /tmp/t$$
+cd /tmp/t$$
+tar xvfz $cur/libqsea*.tar.gz
+cd */
+./configure
+make
+test -x tools/maketree
+#./tools/ncd ./tools/ncd ./tools/ncd
+# TODO
+if test -x test/unitcheck/lctest ; then
+  ./test/unitcheck/lctest
+fi
+rm -rf /tmp/t$$
+exit 0

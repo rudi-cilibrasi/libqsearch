@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+if test ! -f Makefile.in ; then
+  ./autogen
+fi
+if test ! -f Makefile ; then
+  ./configure
+fi
+if test ! -x tools/maketree ; then
+  make
+fi
+test -x tools/maketree
+
+exit 0

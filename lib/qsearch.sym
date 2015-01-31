@@ -1,0 +1,14 @@
+library_func1
+clAddCompressor
+clInit
+clListCompressors
+clLoadCompressor
+clHasCompressor
+clNewConfig
+clNCD
+clNewDatum
+clCatDatum
+clFreeDatum
+clSizeDatum
+clBytesDatum
+clReadFile

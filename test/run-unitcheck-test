@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+test -x tools/maketree
+if test -x ./test/unitcheck/lctest; then
+           ./test/unitcheck/lctest
+           ./test/unitcheck/lcutiltest
+fi
+exit 0
