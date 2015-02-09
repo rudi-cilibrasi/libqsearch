@@ -1,18 +1,17 @@
  LIBRARY_1.0 {
         global:
-            library_func1;
-            clAddCompressor;
-            clInit;
-            clListCompressors;
-            clLoadCompressor;
-            clHasCompressor;
-            clNewConfig;
-            clNCD;
-            clNewDatum;
-            clCatDatum;
-            clFreeDatum;
-            clSizeDatum;
-            clBytesDatum;
+            qsTreeAllocationSize;
+            qsInitializeTree;
+            qsNewTree;
+            qsFreeTree;
+            qsCopyTreeOver;
+            qsLeafCount;
+            qsNodeCount;
+            qsIsConnected;
+            qsVerifyTree;
+            qsScoreTree;
+            qsNormalizeTree;
+            qsTreeCompare;
 
         local:
             *;

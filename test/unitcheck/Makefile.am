@@ -18,3 +18,6 @@ endif
 
 EXTRA_DIST=basic_complete.ts \
   basic_qsutil.ts
+
+clean-local:
+	rm -f *.c
