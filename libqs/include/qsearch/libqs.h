@@ -8,11 +8,20 @@ struct QSTDirectedEdge {
   uint32_t from, to;
 };
 
+struct QSTUInt64Table;
+
+struct QSTUInt64Table *qsNewUInt64Table(void);
+void qsAddUInt64ToTable(struct QSTUInt64Table *hashtab, uint64_t val);
+int qsIsUInt64InTable(const struct QSTUInt64Table *hashtab, uint64_t val);
+void qsFreeUInt64Table(struct QSTUInt64Table *hashtab);
+
 struct QSTree;
 
 uint32_t qsTreeAllocationSize(uint32_t leaf_count);
 uint32_t qsInitializeTree(struct QSTree *tree, uint32_t leaf_count);
 struct QSTree *qsNewTree(uint32_t leaf_count);
+struct QSTree *qsNewCloneOf(const struct QSTree *orig);
+struct QSTree *qsNewRandomTree(uint32_t leaf_count);
 void qsFreeTree(struct QSTree *tree);
 uint32_t qsCopyTreeOver(struct QSTree *destination, const struct QSTree *source);
 uint32_t qsLeafCount(const struct QSTree *tree);
@@ -23,6 +32,20 @@ double qsScoreTree(const struct QSTree *tree, const uint16_t *pathmatrix,
  const double *distmatrix);   // same size as tree leaf count squared
 uint32_t qsNormalizeTree(struct QSTree *tree);
 int qsTreeCompare(const struct QSTree *tree_a, const struct QSTree *tree_b);
+int qsPathFromTo(const struct QSTree *tree, const uint16_t *fullpathmatrix, int a, int b, uint16_t *path_buffer);
+void qsPrintTree(const struct QSTree *tree);
+void qsIterateMutations(const struct QSTree *tree,
+                        const uint16_t *fullpathmatrix,
+                        void *obj,
+  int (*mutationHandler)(const struct QSTree *tree, const struct QSTree *nexttree, int sequence_number,
+                         uint64_t mutation_code, void *obj));
+void qsApplyMutation(struct QSTree *tree,
+                        const uint16_t *fullpathmatrix,
+                        uint64_t mutation_code);
+void qsApplyRandomMutation(struct QSTree *tree);
+void qsScrambleTree(struct QSTree *tree);
+uint64_t qsTreeHash(const struct QSTree *tree);
+uint64_t qsTreeHashHex(const struct QSTree *tree, char hval[17]);
 
 #define QST_NODE_COUNT(leaf_count) (4*leaf_count - 6)
 #define QST_NODELIST_COUNT(leaf_count) (2*leaf_count - 2)
@@ -176,7 +199,12 @@ do {                                                                            
   }                                                                        \
   QST_CONNECT_BOTH(uint16_t, __ztree, howManyLeaves-2, howManyLeaves);     \
   QST_CONNECT_BOTH(uint16_t, __ztree, howManyLeaves-1, 2*howManyLeaves-3); \
-  qsNormalizeTree(utree);                                                \
+  qsNormalizeTree(utree);                                                  \
 }  while (0)
+
+
+#define qsFullPathLengthByteSize(leafcount) (sizeof(uint16_t)*(QST_PATH_LENGTH_COUNT(leafcount)+1))
+#define qsNewFullPathMatrix(leafcount) (((uint16_t *) calloc(1, qsFullPathLengthByteSize(leafcount))) + 1)
+#define qsFreeFullPathMatrix(ptr) free(((uint16_t *) ptr)-1)
 
 #endif

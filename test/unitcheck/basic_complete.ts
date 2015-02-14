@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define MAX_LEAVES_TEST 12
+
 #test qsearch_test
   QST_DECLARE_TREE(uint16_t, tree, 4);
   ck_assert(tree != NULL);
@@ -48,6 +50,7 @@
   qstWriteTruncatedPathMatrix(smallpathlen, pathlen);
   ck_assert(pathlen[-1] == 6);
   ck_assert(smallpathlen[-1] == 4);
+  ck_assert(smallpathlen[1*4+1] == 0);
   ck_assert(pathlen[0] == smallpathlen[0]);
 
 #test qsearch_iteratequartets
@@ -64,6 +67,13 @@ void qcfunc(uint16_t *tree, int i, int a, int b, int c, int d) {
   for (leaf_count = 4; leaf_count < 10; ++leaf_count) {
     struct QSTree *tree = qsNewTree(leaf_count);
     ck_assert(tree != NULL);
+    int zeroIsGood;
+    zeroIsGood = qsVerifyTree(tree);
+    if (zeroIsGood != 0) {
+      fprintf(stderr, "Tree verification error N in newtree test.\n");
+      qsPrintTree(tree);
+      exit(1);
+    }
     qsFreeTree(tree);
   }
 
@@ -116,3 +126,97 @@ void qcfunc(uint16_t *tree, int i, int a, int b, int c, int d) {
     qsFreeTree(tree);
   }
 
+#test qsearch_pathfromto_test
+  int leaf_count;
+  QST_DECLARE_PATH_LENGTH(uint16_t, pathlen, 10);
+  uint16_t path[10];
+  for (leaf_count = 4; leaf_count < 10; ++leaf_count) {
+    struct QSTree *tree = qsNewTree(leaf_count);
+    ck_assert(tree != NULL);
+    qstWritePathMatrix(pathlen, tree);
+    int i, j, k;
+    for (i = 0; i < 2*leaf_count-2; i += 1) {
+      for (k = 0; k < 2*leaf_count-2; k += 1) {
+        int src = i;
+        int dest = k;
+        int path_length = qsPathFromTo(tree, pathlen, src , dest, path);
+        ck_assert(path[0] == src);
+        ck_assert(path[path_length-1] == dest);
+        for (j = 1; j < path_length; ++j) {
+          ck_assert(qsIsConnected(tree, path[j-1], path[j]));
+        }
+      }
+    }
+    qsFreeTree(tree);
+  }
+
+#test qsearch_iteratemutations_test
+int mutationHandler(const struct QSTree *tree, const struct QSTree *nexttree, int sequence_number,
+                       uint64_t mutation_code, void *obj) {
+
+  int zeroIsGood;
+  zeroIsGood = qsVerifyTree(nexttree);
+  if (zeroIsGood != 0) {
+    fprintf(stderr, "Tree verification error A in mutation test.\n");
+    qsPrintTree(nexttree);
+    exit(1);
+  }
+  return 0;
+}
+
+  int leaf_count;
+  QST_DECLARE_PATH_LENGTH(uint16_t, pathlen, MAX_LEAVES_TEST);
+  for (leaf_count = 4; leaf_count < MAX_LEAVES_TEST; ++leaf_count) {
+    struct QSTree *tree = qsNewTree(leaf_count);
+    ck_assert(tree != NULL);
+    qstWritePathMatrix(pathlen, tree);
+    qsIterateMutations(tree, pathlen, pathlen, mutationHandler);
+    qsFreeTree(tree);
+  }
+
+#test qsearch_randommutations_test
+  int leaf_count, i;
+  for (leaf_count = 4; leaf_count < MAX_LEAVES_TEST; ++leaf_count) {
+    struct QSTree *tree = qsNewTree(leaf_count);
+    for (i = 0; i < leaf_count * 10; ++i) {
+      qsApplyRandomMutation(tree);
+      int zeroIsGood = qsVerifyTree(tree);
+      if (zeroIsGood != 0) {
+        fprintf(stderr, "Tree verification error M in random mutation test.\n");
+        qsPrintTree(tree);
+        exit(1);
+      }
+    }
+    qsFreeTree(tree);
+  }
+
+#test qsearch_newrandomtree_test
+  int leaf_count;
+  for (leaf_count = 4; leaf_count < MAX_LEAVES_TEST; ++leaf_count) {
+    struct QSTree *tree = qsNewRandomTree(leaf_count);
+    int zeroIsGood = qsVerifyTree(tree);
+    if (zeroIsGood != 0) {
+      fprintf(stderr, "Tree verification error in random new tree test.\n");
+      qsPrintTree(tree);
+      exit(1);
+    }
+    qsFreeTree(tree);
+  }
+
+#test qsearch_treehash_test
+  int leaf_count;
+  for (leaf_count = 4; leaf_count < MAX_LEAVES_TEST; ++leaf_count) {
+    struct QSTree *tree = qsNewRandomTree(leaf_count);
+    int zeroIsGood = qsVerifyTree(tree);
+    if (zeroIsGood != 0) {
+      fprintf(stderr, "Tree verification error in random new tree test.\n");
+      qsPrintTree(tree);
+      exit(1);
+    }
+    char hval[17];
+    hval[0] = 5;
+    hval[1] = 0;
+    qsTreeHashHex(tree, hval);
+    qsFreeTree(tree);
+    ck_assert(strlen(hval) == 16);
+  }

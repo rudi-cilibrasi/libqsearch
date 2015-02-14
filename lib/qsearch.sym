@@ -1,6 +1,7 @@
 qsTreeAllocationSize
 qsInitializeTree
 qsNewTree
+qsNewCloneOf
 qsFreeTree
 qsCopyTreeOver
 qsLeafCount
@@ -10,3 +11,11 @@ qsVerifyTree
 qsScoreTree
 qsNormalizeTree
 qsTreeCompare
+qsPathFromTo
+qsPrintTree
+qsIterateMutations
+qsApplyMutation
+qsApplyRandomMutation
+qsNewRandomTree
+qsTreeHash
+qsTreeHashHex
