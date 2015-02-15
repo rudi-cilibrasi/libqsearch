@@ -8,6 +8,7 @@ struct QSTDirectedEdge {
   uint32_t from, to;
 };
 
+struct QSTree;
 struct QSTUInt64Table;
 
 struct QSTUInt64Table *qsNewUInt64Table(void);
@@ -15,7 +16,9 @@ void qsAddUInt64ToTable(struct QSTUInt64Table *hashtab, uint64_t val);
 int qsIsUInt64InTable(const struct QSTUInt64Table *hashtab, uint64_t val);
 void qsFreeUInt64Table(struct QSTUInt64Table *hashtab);
 
-struct QSTree;
+double qsStepMCMC(struct QSTree *tree, const double *distmatrix, double beta);
+double qsSolveMCMC(struct QSTree **result, int leaf_count, const double *distmatrix);
+
 
 uint32_t qsTreeAllocationSize(uint32_t leaf_count);
 uint32_t qsInitializeTree(struct QSTree *tree, uint32_t leaf_count);
@@ -142,7 +145,8 @@ do {                                                                            
   } while(0)
 
 #define qstWriteTruncatedPathMatrix(smallpath, path)  do {                 \
-  uint32_t sn = smallpath[-1], n = path[-1];                               \
+  uint32_t n = path[-1], sn = (n + 2)/2;                                   \
+  smallpath[-1] = sn;                                                      \
   uint32_t i;                                                              \
   for (i = 0; i < sn; i += 1) {                                            \
     memcpy(&smallpath[i * sn], &path[i * n], sn * sizeof(smallpath[0]));   \
@@ -204,7 +208,10 @@ do {                                                                            
 
 
 #define qsFullPathLengthByteSize(leafcount) (sizeof(uint16_t)*(QST_PATH_LENGTH_COUNT(leafcount)+1))
-#define qsNewFullPathMatrix(leafcount) (((uint16_t *) calloc(1, qsFullPathLengthByteSize(leafcount))) + 1)
+#define qsPathLengthByteSize(leafcount) (sizeof(uint16_t)*(leafcount*leafcount+1))
+#define qsNewFullPathMatrix(leafcount) (((uint16_t *) calloc(1, qsFullPathLengthByteSize(leafcount)))+ 1)
+#define qsNewPathMatrix(leafcount) (((uint16_t *) calloc(1, qsPathLengthByteSize(leafcount))) + 1)
 #define qsFreeFullPathMatrix(ptr) free(((uint16_t *) ptr)-1)
+#define qsFreePathMatrix(ptr) free(((uint16_t *) ptr)-1)
 
 #endif

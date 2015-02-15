@@ -220,3 +220,57 @@ int mutationHandler(const struct QSTree *tree, const struct QSTree *nexttree, in
     qsFreeTree(tree);
     ck_assert(strlen(hval) == 16);
   }
+
+#test qsearch_mcmc_test
+  int leaf_count;
+  QST_DECLARE_PATH_LENGTH(uint16_t, pathlen, 10);
+  QST_DECLARE_TRUNCATED_PATH_LENGTH(uint16_t, smallpathlen, 10);
+  for (leaf_count = 4; leaf_count < 10; ++leaf_count) {
+    struct QSTree *tree = qsNewTree(leaf_count);
+    ck_assert(tree != NULL);
+    qstWritePathMatrix(pathlen, tree);
+    qstWriteTruncatedPathMatrix(smallpathlen, pathlen);
+    double *distmatrix = calloc(leaf_count * leaf_count , sizeof(double));
+    int i, j;
+    for (i = 0; i < leaf_count; ++i) {
+      for (j = 0; j < leaf_count; ++j) {
+        double min = (i < j ? i : j);
+        double max = (i > j ? i : j);
+        double sum = (i + j) * 0.17 + min * min * 0.3 + max * max * max * 0.01;
+        double result = fabs(sin(sum));
+        distmatrix[i*leaf_count + j] = result;
+      }
+      distmatrix[i*leaf_count + i] = 0;
+    }
+    for (i = 0; i < 10; i += 1) {
+      const double beta = 1.0;
+      const double score = qsStepMCMC(tree, distmatrix, beta);
+      ck_assert(score >= 0);
+      ck_assert(score <= 1);
+    }
+    qsFreeTree(tree);
+    free(distmatrix);
+  }
+
+#test qsearch_mcmcsolver_test
+  int leaf_count;
+  for (leaf_count = 4; leaf_count < 6; ++leaf_count) {
+    struct QSTree *tree;
+    double *distmatrix = calloc(leaf_count * leaf_count , sizeof(double));
+    int i, j;
+    for (i = 0; i < leaf_count; ++i) {
+      for (j = 0; j < leaf_count; ++j) {
+        double min = (i < j ? i : j);
+        double max = (i > j ? i : j);
+        double sum = (i + j) * 0.17 + min * min * 0.3 + max * max * max * 0.01;
+        double result = fabs(sin(sum));
+        distmatrix[i*leaf_count + j] = result;
+      }
+      distmatrix[i*leaf_count + i] = 0;
+    }
+    const double score = qsSolveMCMC(&tree, leaf_count, distmatrix);
+    ck_assert(score == 1);
+    qsFreeTree(tree);
+    free(distmatrix);
+  }
+

@@ -21,6 +21,8 @@
             qsNewRandomTree;
             qsTreeHash;
             qsTreeHashHex;
+            qsStepMCMC;
+            qsSolveMCMC;
 
         local:
             *;

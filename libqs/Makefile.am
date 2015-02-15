@@ -6,7 +6,7 @@ else
 endif
 
 lib_LTLIBRARIES = libqsearch.la
-libqsearch_la_SOURCES = quartet_tree.c libqs.c
+libqsearch_la_SOURCES = quartet_tree.c libqs.c mcmc.c
 libqsearch_la_CPPFLAGS = -I$(top_srcdir)/include -Wall -O3
 libqsearch_la_CFLAGS = -I$(top_srcdir)/include -Wall -O3
 libqsearch_la_LDFLAGS = $(VERSION_LDFLAGS) -O3

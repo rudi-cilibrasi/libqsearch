@@ -19,3 +19,5 @@ qsApplyRandomMutation
 qsNewRandomTree
 qsTreeHash
 qsTreeHashHex
+qsStepMCMC
+qsSolveMCMC

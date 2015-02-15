@@ -144,8 +144,10 @@ static void qsScoreFuncPrivate(const struct QSTree *tree, struct QSTScoreContext
   if (s > maxScore) { maxScore = s; }
   for (i = 0; i < 3; ++i) {
     int *q = &topos[i][0];
-    if (pathmatrix[q[0]*leaf_count + q[1]] + pathmatrix[q[2]*leaf_count + q[3]] <
-        pathmatrix[q[0]*leaf_count + q[2]] + pathmatrix[q[1]*leaf_count + q[3]]) {
+    int consistent =
+     (pathmatrix[q[0]*leaf_count + q[1]] + pathmatrix[q[2]*leaf_count + q[3]] <
+        pathmatrix[q[0]*leaf_count + q[2]] + pathmatrix[q[1]*leaf_count + q[3]]);
+    if ( consistent ) {
       param->totcur += scores[i];
       param->totmin += minScore;
       param->totmax += maxScore;
