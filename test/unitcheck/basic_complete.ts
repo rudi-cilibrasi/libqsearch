@@ -92,6 +92,10 @@ void qcfunc(uint16_t *tree, int i, int a, int b, int c, int d) {
   QST_DECLARE_TRUNCATED_PATH_LENGTH(uint16_t, smallpathlen, 10);
   for (leaf_count = 4; leaf_count < 10; ++leaf_count) {
     struct QSTree *tree = qsNewTree(leaf_count);
+    struct QSTree *t2 = qsNewCloneOf(tree);
+    int compareVal = qsTreeCompare(tree, t2);
+    ck_assert(compareVal == 0);
+    qsFreeTree(t2);
     ck_assert(tree != NULL);
     qstWritePathMatrix(pathlen, tree);
     qstWriteTruncatedPathMatrix(smallpathlen, pathlen);
